@@ -419,9 +419,24 @@ class BirdX {
     while (true) {
       for (let i = 0; i < data.length; i++) {
         const telegramauth = data[i];
-        const userData = JSON.parse(
-          decodeURIComponent(telegramauth.split("user=")[1].split("&")[0])
-        );
+        let userData;
+        if (
+          typeof telegramauth === "string" &&
+          telegramauth.includes("user=")
+        ) {
+            try {
+              userData = JSON.parse(
+                decodeURIComponent(telegramauth.split("user=")[1].split("&")[0])
+              );
+            } catch (error) {
+              logger.error("Failed to parse user data: " + error.message);
+              continue; // Skip to the next iteration if parsing fails
+            }
+        } else {
+          logger.error("Invalid telegramauth format");
+          continue; // Skip to the next iteration if telegramauth is not in the expected format
+        }
+
         const userId = userData.id;
         const firstName = userData.first_name;
 
